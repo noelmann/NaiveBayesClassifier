@@ -146,6 +146,7 @@ bool trainClassifier()
     //P(A|B)=>P(B|A)*P(A)
     //P(s1,s2,s3...|Spam)*P(Spam)=>P(s1|Spam)*P(s2|Spam)*P(s3|Spam)*P(Spam)
     ///P(s1,s2,s3...|notSpam)*P(notSpam)=>P(s1|notSpam)*P(s2|notSpam)*P(s3|notSpam)*P(notSpam)
+    ///
     return true;
 }
 
