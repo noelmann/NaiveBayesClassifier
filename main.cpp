@@ -1,7 +1,9 @@
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <map>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 // TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -11,8 +13,8 @@ map<string, double> spamDictionary;
 map<string, double> nonspamDictionary;
 double priorSpam = 0.5;
 double priornotSpam = 1-priorSpam;
-int totalSpamTokenCount = 0;
-int totalnotSpamTokenCount = 0;
+double totalSpamTokenCount = 0;
+double totalnotSpamTokenCount = 0;
 
 vector<string> tokenize(string s, char delimiter)
 {
@@ -98,56 +100,237 @@ string getNonSpamMailPath()
 
 bool loadSpamMailFile(const string& path)
 {
-    ifstream MyReadFile(path);
-    string text;
-
-    // Use a while loop together with the getline() function to read the file line by line
-    while (getline (MyReadFile, text))
+    for (const auto & entry : filesystem::directory_iterator(path))
     {
-        // Output the text from the file
-        spamCorpus += text;
-    }
+        string fullFilePath = entry.path().string();
 
-    // Close the file
-    MyReadFile.close();
+        cout << fullFilePath << endl;
+        ifstream MyReadFile(fullFilePath);
+        string text;
+
+        // Use a while loop together with the getline() function to read the file line by line
+        while (getline (MyReadFile, text))
+        {
+            // Output the text from the file
+            spamCorpus += text + " ";
+            //cout << text << endl;
+        }
+
+        // Close the file
+        MyReadFile.close();
+    }
     return true;
 }
 
 bool loadNonSpamMailFile(const string& path)
 {
-    ifstream MyReadFile(path);
-    string text;
-
-    // Use a while loop together with the getline() function to read the file line by line
-    while (getline (MyReadFile, text))
+    for (const auto & entry : filesystem::directory_iterator(path))
     {
-        // Output the text from the file
-        nonspamCorpus += text;
+        string fullFilePath = entry.path().string();
 
+        cout << fullFilePath << endl;
+        ifstream MyReadFile(fullFilePath);
+        string text;
+
+        // Use a while loop together with the getline() function to read the file line by line
+        while (getline (MyReadFile, text))
+        {
+            // Output the text from the file
+            nonspamCorpus += text + " ";
+            //cout << text << endl;
+        }
+
+        // Close the file
+        MyReadFile.close();
     }
-
-    // Close the file
-    MyReadFile.close();
     return true;
 }
 
-bool preprocessText(string text)
-{
-    /*for (string t : spamCorpus)
-    {
-
-    }*/
-
-    return true;
-}
-
-bool trainClassifier()
+bool trainClassifier(int k)
 {
     //P(A|B)=>P(B|A)*P(A)
     //P(s1,s2,s3...|Spam)*P(Spam)=>P(s1|Spam)*P(s2|Spam)*P(s3|Spam)*P(Spam)
     ///P(s1,s2,s3...|notSpam)*P(notSpam)=>P(s1|notSpam)*P(s2|notSpam)*P(s3|notSpam)*P(notSpam)
-    ///
+    vector<string> tokens_spam = tokenize(spamCorpus,' ');
+    vector<string> tokens_nonspam = tokenize(nonspamCorpus,' ');
+
+    for (string token : tokens_spam)
+    {
+        if (spamDictionary[token])
+        {
+            spamDictionary[token] += 1;
+            totalSpamTokenCount += 1;
+        }
+        else
+        {
+            spamDictionary[token] = 1+k;
+            totalSpamTokenCount += 1+k;
+        }
+    }
+
+    for (string token : tokens_nonspam)
+    {
+        if (nonspamDictionary[token])
+        {
+            nonspamDictionary[token] += 1;
+            totalnotSpamTokenCount += 1;
+        }
+        else
+        {
+            nonspamDictionary[token] = 1+k;
+            totalnotSpamTokenCount += 1+k;
+        }
+    }
+
+
+    vector<string> combinedCorpusTokens = tokens_spam;
+    combinedCorpusTokens.insert(combinedCorpusTokens.begin(), tokens_nonspam.begin(), tokens_nonspam.end());
+
+    for (string token : combinedCorpusTokens)
+    {
+        if (!spamDictionary[token])
+        {
+            spamDictionary[token] = k;
+            totalSpamTokenCount += k;
+        }
+
+        if (!nonspamDictionary[token])
+        {
+            nonspamDictionary[token] = k;
+            totalnotSpamTokenCount += k;
+        }
+    }
+
+
+    for (auto pair : spamDictionary)
+    {
+        spamDictionary[pair.first] = pair.second/totalSpamTokenCount;
+    }
+
+    for (auto pair : nonspamDictionary)
+    {
+        nonspamDictionary[pair.first] = pair.second/totalnotSpamTokenCount;
+    }
+
+    priorSpam=totalSpamTokenCount/(totalSpamTokenCount+totalnotSpamTokenCount);
+    priornotSpam=totalnotSpamTokenCount/(totalSpamTokenCount+totalnotSpamTokenCount);
+
+    cout << "PriorSpam:" << priorSpam << endl;
+    cout << "PriorNotSpam:" << priornotSpam << endl;
     return true;
+}
+
+bool classify(string text)
+{
+    vector<string> input = tokenize(text,' ');
+    double spamProbability = 0;
+    double hamProbability = 0;
+    for (string token : input)
+    {
+        if (!spamDictionary[token])
+        {
+            cout << "UNKNOWN TOKEN!" << endl;
+        }
+        else
+        {
+            spamProbability += log(spamDictionary[token]);
+        }
+
+
+        if (!nonspamDictionary[token])
+        {
+            cout << "UNKNOWN TOKEN!" << endl;
+        }
+        else
+        {
+            hamProbability += log(nonspamDictionary[token]);
+        }
+
+    }
+    spamProbability+=log(priorSpam);
+    hamProbability+=log(priornotSpam);
+
+    cout << "SpamProbability:" << (spamProbability) << endl;
+    cout << "HamProbability:" <<  (hamProbability) << endl;
+
+    if (spamProbability > hamProbability)
+    {
+        cout << "Spam!" << endl;
+        return true;
+    }
+    else
+    {
+        cout << "Ham!" << endl;
+        return false;
+    }
+    return false;
+}
+
+void testClassifier()
+{
+    /*string text;
+    for (;;)
+    {
+        cout << "Please enter the mail:" << endl;
+        getline(cin,text);
+        if (text == "terminate") {
+            return;
+        }
+        classify(text);
+    }*/
+
+    double unkCounter = 0;
+    double nonUnkCounter = 0;
+    double spamCounter = 0;
+    double totalCounter = 0;
+    string path;
+    cout << "Please enter the folder path:" << endl;
+    getline(cin,path);
+    for (const auto & entry : filesystem::directory_iterator(path))
+    {
+        string mail;
+        string fullFilePath = entry.path().string();
+
+        cout << fullFilePath << endl;
+        ifstream MyReadFile(fullFilePath);
+        string text;
+
+        // Use a while loop together with the getline() function to read the file line by line
+        while (getline (MyReadFile, text))
+        {
+            // Output the text from the file
+            mail += text + " ";
+            //cout << text << endl;
+        }
+        totalCounter++;
+        if (classify(mail)) {
+            spamCounter++;
+        }
+
+        vector<string> tokenized = tokenize(mail,' ');
+        for (string token : tokenized)
+        {
+            if (!spamDictionary[token])
+            {
+                    unkCounter++;
+            }
+            else
+            {
+                nonUnkCounter++;
+            }
+
+        }
+
+        // Close the file
+        MyReadFile.close();
+    }
+
+    cout << "Totalcount:" << totalCounter << endl;
+    cout << "Spamcount:" << spamCounter << endl;
+    cout << "SpamPercentage:" << spamCounter/totalCounter << endl;
+    cout << "UnkCount:" << unkCounter << endl;
+    cout << "UnkPercentage:" << unkCounter/(unkCounter+nonUnkCounter) << endl;
+
 }
 
 bool saveClassifierOnDisk()
@@ -173,7 +356,39 @@ int main()
         //Read both files
         loadSpamMailFile(spamPath);
         loadNonSpamMailFile(nonspamPath);
-        //Estimate probabilities with MLE and use laplace smoothing
+        //Estimate probabilities with MLE and use add-k smoothing
+        trainClassifier(1);
+        cout << "Training completed" << endl;
+        /*cout << "SpamMailProbabilities:" << endl;
+
+        int c = 0;
+        for (auto pair : spamDictionary)
+        {
+            cout << pair.first << ":" << pair.second << endl;
+            if (c==20)
+            {
+                break;
+            }
+            c++;
+        }
+
+        c=0;
+        cout << "NonSpamMailProbabilities:" << endl;
+        for (auto pair : nonspamDictionary)
+        {
+            cout << pair.first << ":" << pair.second << endl;
+            if (c==20)
+            {
+                break;
+            }
+            c++;
+        }*/
+        for (;;)
+        {
+            getchar();
+            testClassifier();
+        }
+
 
 
     }
