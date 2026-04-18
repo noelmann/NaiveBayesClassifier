@@ -15,21 +15,40 @@ double priorSpam = 0.5;
 double priornotSpam = 1-priorSpam;
 double totalSpamTokenCount = 0;
 double totalnotSpamTokenCount = 0;
+string delimiter = ":<<<|||>>>:";
 
-vector<string> tokenize(const string &s, char delimiter)
+
+std::vector<std::string> splitString(const std::string& input, const std::string& d) {
+    std::vector<std::string> result;
+
+    size_t start = 0;
+    size_t end = input.find(d);
+
+    while (end != std::string::npos) {
+        result.push_back(input.substr(start, end - start));
+        start = end + d.length();
+        end = input.find(d, start);
+    }
+    result.push_back(input.substr(start));
+
+    return result;
+}
+
+
+vector<string> tokenize(const string &s, char d)
 {
     vector<string> substrings;
     string temp;
     //cout << s << endl;
     for (int i = 0;i<s.size()+1;i++)
     {
-        if (i == s.size() || s[i] == delimiter)
+        if (i == s.size() || s[i] == d)
         {
             substrings.push_back(temp);
             //cout << temp << endl;
             temp = "";
         }
-        else if (s[i] != delimiter)
+        else if (s[i] != d)
         {
             temp+=s[i];
         }
@@ -37,18 +56,15 @@ vector<string> tokenize(const string &s, char delimiter)
     return substrings;
 }
 
-bool hasTrainedClassifier()
-{
-    //TODO("implementation");
-    return false;
-}
 
 bool useExistingClassifier()
 {
-    cout << "Do you want to use the already trained classifier?[if not then a new classifier will be trained and overwrite the old one]" << endl;
+    cout << "Do you want to use the already trained classifier?" << endl;
     cout << "Yes(y) or No(n): ";
-    char input = getchar();
-    if (input == 'y')
+    string input;
+    getline(cin,input);
+    cout << endl;
+    if (input == "y")
     {
         return true;
     }
@@ -311,17 +327,96 @@ void testClassifier()
 
 bool saveClassifierOnDisk()
 {
+    cout << "Please enter the path where the trained classifier should be saved" << endl;
+    string saveLocation;
+    getline(cin,saveLocation);
+
+    ofstream classifierFile(saveLocation);
+
+    // Write to the file
+    classifierFile << "spamPrior:" << priorSpam << endl;
+    classifierFile << "hamPrior:" << priornotSpam << endl;
+    classifierFile << "|||SpamSection|||" << endl;
+    for (const auto& pair : spamDictionary)
+    {
+        classifierFile << pair.first << delimiter << pair.second << endl;
+    }
+
+
+    classifierFile << "|||HamSection|||" << endl;
+    for (const auto& pair : nonspamDictionary)
+    {
+        classifierFile << pair.first << delimiter << pair.second << endl;
+    }
+
+
+    // Close the file
+    classifierFile.close();
+
+    return true;
+}
+
+bool loadClassifierFromDisk()
+{
+    cout << "Please enter the path of the saved classifier" << endl;
+    string saveLocation;
+    getline(cin,saveLocation);
+
+    ifstream classifierFile(saveLocation);
+
+    bool processingSpamSection = false;
+    string line;
+    int linecount = 0;
+    while (getline(classifierFile,line))
+    {
+        linecount ++;
+        if (linecount == 1)
+        {
+             priorSpam = stod(splitString(line,":").at(1));
+            cout << "read priorSpam" << endl;
+            continue;
+        }
+        else if (linecount == 2)
+        {
+             priornotSpam = priorSpam = stod(splitString(line,":").at(1));
+            cout << "read priornotSpam" << endl;
+            continue;
+        }
+        else if (line == "|||SpamSection|||")
+        {
+            processingSpamSection = true;
+            continue;;
+        }
+        else if (line == "|||HamSection|||")
+        {
+            processingSpamSection = false;
+            continue;
+        }
+
+        vector<string> s = splitString(line,delimiter);
+        if (processingSpamSection)
+        {
+            spamDictionary[s.at(0)]=stod(s.at(1));
+        }
+        else
+        {
+            nonspamDictionary[s.at(0)]=stod(s.at(1));
+        }
+    }
+
+    // Close the file
+    classifierFile.close();
+
     return true;
 }
 
 int main()
 {
-    //Check if user has already trained a classifier
+    //saveClassifierOnDisk();
 
-    if (hasTrainedClassifier())
+    if(useExistingClassifier())
     {
-        //If yes then ask him if he wants to use it or train a new classifier that will overwrite the old one
-        useExistingClassifier();
+        loadClassifierFromDisk();
     }
     else
     {
@@ -335,6 +430,7 @@ int main()
         //Estimate probabilities with MLE and use add-k smoothing
         trainClassifier(1);
         cout << "Training completed" << endl;
+        saveClassifierOnDisk();
         /*cout << "SpamMailProbabilities:" << endl;
 
         int c = 0;
@@ -359,14 +455,12 @@ int main()
             }
             c++;
         }*/
-        for (;;)
-        {
-            getchar();
-            testClassifier();
-        }
+    }
 
-
-
+    for (;;)
+    {
+        getchar();
+        testClassifier();
     }
 
     //Ask user for new sample path
