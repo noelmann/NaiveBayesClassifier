@@ -16,48 +16,24 @@ double priornotSpam = 1-priorSpam;
 double totalSpamTokenCount = 0;
 double totalnotSpamTokenCount = 0;
 
-vector<string> tokenize(string s, char delimiter)
+vector<string> tokenize(const string &s, char delimiter)
 {
     vector<string> substrings;
-    int startIndex = 0;
-    int endIndex = s.length();
-    for (int i = 0;i<s.length();i++)
+    string temp;
+    //cout << s << endl;
+    for (int i = 0;i<s.size()+1;i++)
     {
-        if (s[i] == ' ')
+        if (i == s.size() || s[i] == delimiter)
         {
-
-            endIndex = i;
-
-            string sub;
-            for (int j = startIndex;j<endIndex;j++)
-            {
-                sub+=s[j];
-            }
-            if (!sub.empty())
-            {
-                substrings.push_back(sub);
-            }
-
-            startIndex=endIndex+1;
+            substrings.push_back(temp);
+            //cout << temp << endl;
+            temp = "";
         }
-        else if (i == s.length()-1)
+        else if (s[i] != delimiter)
         {
-            endIndex = s.length();
-            string sub;
-            for (int j = startIndex;j<endIndex;j++)
-            {
-                sub+=s[j];
-            }
-
-            if (!sub.empty())
-            {
-                substrings.push_back(sub);
-            }
-
-            startIndex=endIndex+1;
+            temp+=s[i];
         }
     }
-
     return substrings;
 }
 
