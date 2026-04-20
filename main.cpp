@@ -6,7 +6,7 @@
 #include <cmath>
 
 using namespace std;
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
 string spamCorpus;
 string nonspamCorpus;
 map<string, double> spamDictionary;
@@ -17,6 +17,28 @@ double totalSpamTokenCount = 0;
 double totalnotSpamTokenCount = 0;
 string delimiter = ":<<<|||>>>:";
 
+
+enum dialogueState {infoScreen, checkForTrainedClassifier, loadClassifier, trainNewClassifier, useClassifier};
+
+dialogueState dialogueState = infoScreen;
+
+string getInput()
+{
+    string s;
+    getline(cin,s);
+    return s;
+}
+
+string convertStringToLower(const string& s)
+{
+    string temp;
+    for (int i = 0; i < s.length(); i++)
+    {
+        temp+=tolower(s[i]);
+    }
+
+    return temp;
+}
 
 std::vector<std::string> splitString(const std::string& input, const std::string& d) {
     std::vector<std::string> result;
@@ -59,34 +81,44 @@ vector<string> tokenize(const string &s, char d)
 
 bool useExistingClassifier()
 {
-    cout << "Do you want to use the already trained classifier?" << endl;
-    cout << "Yes(y) or No(n): ";
-    string input;
-    getline(cin,input);
-    cout << endl;
-    if (input == "y")
+    bool validInput = false;
+    while (!validInput)
     {
-        return true;
+        cout << "Do you want to use a classifier stored on disk?" << endl;
+        cout << "Yes(y) or No(n): ";
+        string input = convertStringToLower(getInput());
+        cout << endl;
+        if (input == "y" || input == "yes")
+        {
+            validInput = true;
+            return true;
+        }
+        else if (input == "n" || input == "no")
+        {
+            validInput = true;
+            return false;
+        }
+        else
+        {
+            validInput = false;
+            continue;
+        }
     }
-    else
-    {
-        return false;
-    }
+
+    return true;
 }
 
 string getSpamMailPath()
 {
-    cout << "Please enter the full path to the spam mail txt file:" << endl;
-    string spamPath;
-    getline(cin,spamPath);
+    cout << "Please enter the full path to the spam mail txt files:" << endl;
+    string spamPath = getInput();
     return spamPath;
 }
 
 string getNonSpamMailPath()
 {
-    cout << "Please enter the full path to the non-spam mail txt file:" << endl;
-    string nonspamPath;
-    getline(cin,nonspamPath);
+    cout << "Please enter the full path to the non-spam mail txt files:" << endl;
+    string nonspamPath = getInput();
     return nonspamPath;
 }
 
@@ -143,6 +175,16 @@ bool trainClassifier(int k)
     //P(A|B)=>P(B|A)*P(A)
     //P(s1,s2,s3...|Spam)*P(Spam)=>P(s1|Spam)*P(s2|Spam)*P(s3|Spam)*P(Spam)
     ///P(s1,s2,s3...|notSpam)*P(notSpam)=>P(s1|notSpam)*P(s2|notSpam)*P(s3|notSpam)*P(notSpam)
+
+
+    //Ask user for spam mail path txt
+    string spamPath = getSpamMailPath();
+    //Ask user for non spam mail path txt
+    string nonspamPath = getNonSpamMailPath();
+    loadSpamMailFile(spamPath);
+    loadNonSpamMailFile(nonspamPath);
+
+
     vector<string> tokens_spam = tokenize(spamCorpus,' ');
     vector<string> tokens_nonspam = tokenize(nonspamCorpus,' ');
 
@@ -328,8 +370,7 @@ void testClassifier()
 bool saveClassifierOnDisk()
 {
     cout << "Please enter the path where the trained classifier should be saved" << endl;
-    string saveLocation;
-    getline(cin,saveLocation);
+    string saveLocation = getInput();
 
     ofstream classifierFile(saveLocation);
 
@@ -360,10 +401,12 @@ bool loadClassifierFromDisk()
 {
     cout << "Please enter the path of the saved classifier" << endl;
     string saveLocation;
-    getline(cin,saveLocation);
+    saveLocation = getInput();
 
     ifstream classifierFile(saveLocation);
 
+    spamDictionary.clear();
+    nonspamDictionary.clear();
     bool processingSpamSection = false;
     string line;
     int linecount = 0;
@@ -408,6 +451,65 @@ bool loadClassifierFromDisk()
     classifierFile.close();
 
     return true;
+}
+
+void getPaths()
+{
+
+}
+
+void showInfoScreen()
+{
+
+}
+
+void dialogueManager()
+{
+    for (;;)
+    {
+        switch (dialogueState)
+        {
+            case infoScreen:
+                showInfoScreen();
+                dialogueState = checkForTrainedClassifier;
+                break;
+
+            case checkForTrainedClassifier:
+                if (useExistingClassifier())
+                {
+                    dialogueState = loadClassifier;
+                }
+                else
+                {
+                    dialogueState = trainNewClassifier;
+                }
+                break;
+
+            case loadClassifier:
+                try
+                {
+                    loadClassifierFromDisk();
+                    dialogueState = useClassifier;
+                }
+                catch (exception& e)
+                {
+                    cout << e.what() << endl;
+                }
+                break;
+
+            case trainNewClassifier:
+                //Estimate probabilities with MLE and use add-k smoothing
+                trainClassifier(1);
+                cout << "Training completed" << endl;
+                saveClassifierOnDisk();
+                break;
+
+
+            case useClassifier:
+                testClassifier();
+                break;
+        }
+    }
 }
 
 int main()
