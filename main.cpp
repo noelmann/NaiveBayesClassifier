@@ -18,7 +18,7 @@ double totalnotSpamTokenCount = 0;
 string delimiter = ":<<<|||>>>:";
 
 
-enum dialogueState {infoScreen, checkForTrainedClassifier, loadClassifier, trainNewClassifier, useClassifier};
+enum dialogueState {infoScreen, checkForTrainedClassifier, loadClassifier, trainNewClassifier, useClassifier, continueClassifierUse};
 
 dialogueState dialogueState = infoScreen;
 
@@ -318,7 +318,7 @@ void testClassifier()
     double spamCounter = 0;
     double totalCounter = 0;
     string path;
-    cout << "Please enter the folder path:" << endl;
+    cout << "Please enter the path of the testset:" << endl;
     getline(cin,path);
     for (const auto & entry : filesystem::directory_iterator(path))
     {
@@ -460,7 +460,7 @@ void getPaths()
 
 void showInfoScreen()
 {
-
+    cout << "Welcome to a simple Naive Bayes Classifier Demo." << endl;
 }
 
 void dialogueManager()
@@ -502,12 +502,19 @@ void dialogueManager()
                 trainClassifier(1);
                 cout << "Training completed" << endl;
                 saveClassifierOnDisk();
+                dialogueState = useClassifier;
                 break;
 
 
             case useClassifier:
                 testClassifier();
                 break;
+
+            case continueClassifierUse:
+
+                break;
+
+
         }
     }
 }
@@ -515,7 +522,7 @@ void dialogueManager()
 int main()
 {
     //saveClassifierOnDisk();
-
+/*
     if(useExistingClassifier())
     {
         loadClassifierFromDisk();
@@ -556,7 +563,7 @@ int main()
                 break;
             }
             c++;
-        }*/
+        }
     }
 
     for (;;)
@@ -570,6 +577,7 @@ int main()
 
 
 
-    cout << "Greetings!" << endl;
+    cout << "Greetings!" << endl;*/
+    dialogueManager();
     return 0;
 }
