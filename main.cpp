@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <cmath>
+#include "HelperFunctions.h"
 
 using namespace std;
 
@@ -22,61 +23,6 @@ enum dialogueState {infoScreen, checkForTrainedClassifier, loadClassifier, train
 
 dialogueState dialogueState = infoScreen;
 
-string getInput()
-{
-    string s;
-    getline(cin,s);
-    return s;
-}
-
-string convertStringToLower(const string& s)
-{
-    string temp;
-    for (int i = 0; i < s.length(); i++)
-    {
-        temp+=tolower(s[i]);
-    }
-
-    return temp;
-}
-
-std::vector<std::string> splitString(const std::string& input, const std::string& d) {
-    std::vector<std::string> result;
-
-    size_t start = 0;
-    size_t end = input.find(d);
-
-    while (end != std::string::npos) {
-        result.push_back(input.substr(start, end - start));
-        start = end + d.length();
-        end = input.find(d, start);
-    }
-    result.push_back(input.substr(start));
-
-    return result;
-}
-
-
-vector<string> tokenize(const string &s, char d)
-{
-    vector<string> substrings;
-    string temp;
-    //cout << s << endl;
-    for (int i = 0;i<s.size()+1;i++)
-    {
-        if (i == s.size() || s[i] == d)
-        {
-            substrings.push_back(temp);
-            //cout << temp << endl;
-            temp = "";
-        }
-        else if (s[i] != d)
-        {
-            temp+=s[i];
-        }
-    }
-    return substrings;
-}
 
 
 bool useExistingClassifier()
@@ -86,7 +32,7 @@ bool useExistingClassifier()
     {
         cout << "Do you want to use a classifier stored on disk?" << endl;
         cout << "Yes(y) or No(n): ";
-        string input = convertStringToLower(getInput());
+        string input = HelperFunctions::convertStringToLower(HelperFunctions::getInput());
         cout << endl;
         if (input == "y" || input == "yes")
         {
@@ -111,14 +57,14 @@ bool useExistingClassifier()
 string getSpamMailPath()
 {
     cout << "Please enter the full path to the spam mail txt files:" << endl;
-    string spamPath = getInput();
+    string spamPath = HelperFunctions::getInput();
     return spamPath;
 }
 
 string getNonSpamMailPath()
 {
     cout << "Please enter the full path to the non-spam mail txt files:" << endl;
-    string nonspamPath = getInput();
+    string nonspamPath = HelperFunctions::getInput();
     return nonspamPath;
 }
 
@@ -185,8 +131,8 @@ bool trainClassifier(int k)
     loadNonSpamMailFile(nonspamPath);
 
 
-    vector<string> tokens_spam = tokenize(spamCorpus,' ');
-    vector<string> tokens_nonspam = tokenize(nonspamCorpus,' ');
+    vector<string> tokens_spam = HelperFunctions::tokenize(spamCorpus,' ');
+    vector<string> tokens_nonspam = HelperFunctions::tokenize(nonspamCorpus,' ');
 
     for (string token : tokens_spam)
     {
@@ -256,7 +202,7 @@ bool trainClassifier(int k)
 
 bool classify(string text)
 {
-    vector<string> input = tokenize(text,' ');
+    vector<string> input = HelperFunctions::tokenize(text,' ');
     double spamProbability = 0;
     double hamProbability = 0;
     for (string token : input)
@@ -341,7 +287,7 @@ void testClassifier()
             spamCounter++;
         }
 
-        vector<string> tokenized = tokenize(mail,' ');
+        vector<string> tokenized = HelperFunctions::tokenize(mail,' ');
         for (string token : tokenized)
         {
             if (!spamDictionary[token])
@@ -370,7 +316,7 @@ void testClassifier()
 bool saveClassifierOnDisk()
 {
     cout << "Please enter the path where the trained classifier should be saved" << endl;
-    string saveLocation = getInput();
+    string saveLocation = HelperFunctions::getInput();
 
     ofstream classifierFile(saveLocation);
 
@@ -401,7 +347,7 @@ bool loadClassifierFromDisk()
 {
     cout << "Please enter the path of the saved classifier" << endl;
     string saveLocation;
-    saveLocation = getInput();
+    saveLocation = HelperFunctions::getInput();
 
     ifstream classifierFile(saveLocation);
 
@@ -415,13 +361,13 @@ bool loadClassifierFromDisk()
         linecount ++;
         if (linecount == 1)
         {
-             priorSpam = stod(splitString(line,":").at(1));
+             priorSpam = stod(HelperFunctions::splitString(line,":").at(1));
             cout << "read priorSpam" << endl;
             continue;
         }
         else if (linecount == 2)
         {
-             priornotSpam = priorSpam = stod(splitString(line,":").at(1));
+             priornotSpam = priorSpam = stod(HelperFunctions::splitString(line,":").at(1));
             cout << "read priornotSpam" << endl;
             continue;
         }
@@ -436,7 +382,7 @@ bool loadClassifierFromDisk()
             continue;
         }
 
-        vector<string> s = splitString(line,delimiter);
+        vector<string> s = HelperFunctions::splitString(line,delimiter);
         if (processingSpamSection)
         {
             spamDictionary[s.at(0)]=stod(s.at(1));
