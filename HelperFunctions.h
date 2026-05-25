@@ -8,12 +8,20 @@
 #include <vector>
 
 
-class HelperFunctions {
+class HelperFunctions
+{
     public:
     static std::string getInput();
     static std::string convertStringToLower(const std::string& s);
     static std::vector<std::string> splitString(const std::string& input, const std::string& d);
     static std::vector<std::string> tokenize(const std::string &s, char d);
+
+    static std::string getSpamMailPath();
+    static std::string getNonSpamMailPath();
+    static std::string getTestSetPath();
+    static std::string getClassifierSaveLocation();
+    static std::string getLocationOfSavedClassifier();
+    static int getSmoothingParameter();
 };
 
 
