@@ -21,7 +21,9 @@ class HelperFunctions
     static std::string getTestSetPath();
     static std::string getClassifierSaveLocation();
     static std::string getLocationOfSavedClassifier();
+    static std::string getMailToClassify();
     static int getSmoothingParameter();
+    static void showInfoScreen();
 };
 
 

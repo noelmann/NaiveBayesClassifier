@@ -5,11 +5,14 @@
 #ifndef NAIVEBAYESCLASSIFIER_CLASSIFIER_H
 #define NAIVEBAYESCLASSIFIER_CLASSIFIER_H
 #include <iostream>
+#include <map>
+
+using namespace std;
 
 class Classifier
 {
     public:
-    Classifier();
+    Classifier(bool enterVerboseMode);
     bool useExistingClassifier();
     bool loadClassifierFromDisk();
     bool trainClassifier();
@@ -19,6 +22,20 @@ class Classifier
     void showInfoScreen();
     bool loadNonSpamMailFile(const std::string& path);
     bool loadSpamMailFile(const std::string& path);
+    void enableVerboseMode();
+    void disableVerboseMode();
+
+    private:
+    string spamCorpus;
+    string nonspamCorpus;
+    map<string, double> spamDictionary;
+    map<string, double> nonspamDictionary;
+    double priorSpam = 0.5;
+    double priornotSpam = 1-priorSpam;
+    double totalSpamTokenCount = 0;
+    double totalnotSpamTokenCount = 0;
+    string delimiter = ":<<<|||>>>:";
+    bool verbose = false;
 
 };
 

@@ -87,17 +87,25 @@ std::string HelperFunctions::getTestSetPath()
 
 std::string HelperFunctions::getClassifierSaveLocation()
 {
-    std::cout << "Please enter the path where the trained classifier should be saved" << std::endl;
+    std::cout << "Please enter the path where the trained classifier should be saved:" << std::endl;
     std::string saveLocation = HelperFunctions::getInput();
     return saveLocation;
 }
 
 std::string HelperFunctions::getLocationOfSavedClassifier()
 {
-    std::cout << "Please enter the path of the saved classifier" << std::endl;
+    std::cout << "Please enter the path of the saved classifier:" << std::endl;
     std::string saveLocation = HelperFunctions::getInput();
 
     return saveLocation;
+}
+
+std::string HelperFunctions::getMailToClassify()
+{
+    std::cout << "Please enter the content of the mail to be classified:" << std::endl;
+    std::string mail = HelperFunctions::getInput();
+
+    return mail;
 }
 
 int HelperFunctions::getSmoothingParameter()
@@ -106,4 +114,9 @@ int HelperFunctions::getSmoothingParameter()
     int smoothingValue = stoi(HelperFunctions::getInput());
     std::cout << std::endl;
     return smoothingValue;
+}
+
+void HelperFunctions::showInfoScreen()
+{
+    std::cout << "Welcome to a simple naive bayes spam/ham classifier demo with add-k smoothing." << std::endl;
 }

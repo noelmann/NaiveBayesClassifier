@@ -13,20 +13,26 @@
 
 using namespace std;
 
-string spamCorpus;
-string nonspamCorpus;
-map<string, double> spamDictionary;
-map<string, double> nonspamDictionary;
-double priorSpam = 0.5;
-double priornotSpam = 1-priorSpam;
-double totalSpamTokenCount = 0;
-double totalnotSpamTokenCount = 0;
-string delimiter = ":<<<|||>>>:";
-
-
-Classifier::Classifier()
+Classifier::Classifier(bool enterVerboseMode)
 {
+    if (enterVerboseMode)
+    {
+        enableVerboseMode();
+    }
+    else
+    {
+        disableVerboseMode();
+    }
+}
 
+void Classifier::enableVerboseMode()
+{
+    verbose = true;
+}
+
+void Classifier::disableVerboseMode()
+{
+    verbose = false;
 }
 
 bool Classifier::loadSpamMailFile(const string& path)
@@ -35,7 +41,10 @@ bool Classifier::loadSpamMailFile(const string& path)
     {
         string fullFilePath = entry.path().string();
 
-        cout << fullFilePath << endl;
+        if (verbose)
+        {
+            cout << fullFilePath << endl;
+        }
         ifstream MyReadFile(fullFilePath);
         string text;
 
@@ -59,7 +68,10 @@ bool Classifier::loadNonSpamMailFile(const string& path)
     {
         string fullFilePath = entry.path().string();
 
-        cout << fullFilePath << endl;
+        if (verbose)
+        {
+            cout << fullFilePath << endl;
+        }
         ifstream MyReadFile(fullFilePath);
         string text;
 
@@ -174,7 +186,10 @@ bool Classifier::classify(const string &text)
     {
         if (!spamDictionary[token])
         {
-            cout << "UNKNOWN TOKEN!" << endl;
+            if (verbose)
+            {
+                cout << "UNKNOWN TOKEN!" << endl;
+            }
         }
         else
         {
@@ -184,7 +199,10 @@ bool Classifier::classify(const string &text)
 
         if (!nonspamDictionary[token])
         {
-            cout << "UNKNOWN TOKEN!" << endl;
+            if (verbose)
+            {
+                cout << "UNKNOWN TOKEN!" << endl;
+            }
         }
         else
         {
@@ -195,8 +213,10 @@ bool Classifier::classify(const string &text)
     spamProbability+=log(priorSpam);
     hamProbability+=log(priornotSpam);
 
-    cout << "SpamProbability:" << pow(numbers::e,spamProbability) << endl;
-    cout << "HamProbability:" <<  pow(numbers::e,hamProbability) << endl;
+    //cout << "SpamProbability:" << pow(numbers::e,spamProbability) << endl;
+    //cout << "HamProbability:" <<  pow(numbers::e,hamProbability) << endl;
+    cout << "SpamProbability:" << spamProbability << endl;
+    cout << "HamProbability:" <<  hamProbability << endl;
 
     if (spamProbability > hamProbability)
     {
@@ -270,7 +290,10 @@ void Classifier::testClassifierOnTestset()
         string mail;
         string fullFilePath = entry.path().string();
 
-        cout << fullFilePath << endl;
+        if (verbose)
+        {
+            cout << fullFilePath << endl;
+        }
         ifstream MyReadFile(fullFilePath);
         string text;
 
@@ -364,13 +387,20 @@ bool Classifier::loadClassifierFromDisk()
         if (linecount == 1)
         {
             priorSpam = stod(HelperFunctions::splitString(line,":").at(1));
-            cout << "read priorSpam" << endl;
+            if (verbose)
+            {
+                cout << "read priorSpam" << endl;
+            }
             continue;
         }
         else if (linecount == 2)
         {
-             priornotSpam = priorSpam = stod(HelperFunctions::splitString(line,":").at(1));
-            cout << "read priornotSpam" << endl;
+            priornotSpam = priorSpam = stod(HelperFunctions::splitString(line,":").at(1));
+            if (verbose)
+            {
+                cout << "read priornotSpam" << endl;
+            }
+
             continue;
         }
         else if (line == "|||SpamSection|||")
@@ -399,9 +429,4 @@ bool Classifier::loadClassifierFromDisk()
     classifierFile.close();
 
     return true;
-}
-
-void Classifier::showInfoScreen()
-{
-    cout << "Welcome to a simple naive bayes spam/ham classifier demo with add-k smoothing." << endl;
 }

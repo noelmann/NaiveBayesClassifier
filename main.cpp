@@ -6,7 +6,7 @@ using namespace std;
 
 int main()
 {
-    Classifier classifier = Classifier();
+    Classifier classifier = Classifier(false);
     DialogueManager dialogueManager = DialogueManager();
     dialogueManager.manageDialogue(classifier);
     return 0;

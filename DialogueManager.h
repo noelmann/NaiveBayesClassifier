@@ -10,11 +10,13 @@
 class DialogueManager
 {
     public:
-    enum dialogueState {infoScreen, checkForTrainedClassifier, loadClassifier, trainNewClassifier, classifyTestset, useClassifier, continueClassifierUse};
     DialogueManager();
-    dialogueState getDialogueState();
-    void setDialogueState(dialogueState state);
     void manageDialogue(Classifier classifier);
+    private:
+    enum dialogueState {infoScreen, checkForTrainedClassifier, loadClassifier, trainNewClassifier, classifyTestset, useClassifier};
+    void setDialogueState(dialogueState state);
+    dialogueState getDialogueState();
+    dialogueState dState;
 
 };
 

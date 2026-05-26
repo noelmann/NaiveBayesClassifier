@@ -5,10 +5,9 @@
 #include "DialogueManager.h"
 #include "Classifier.h"
 #include <iostream>
+#include "HelperFunctions.h"
 
 using namespace std;
-
-DialogueManager::dialogueState dState;
 
 DialogueManager::DialogueManager()
 {
@@ -32,7 +31,7 @@ void DialogueManager::manageDialogue(Classifier classifier)
         switch (getDialogueState())
         {
             case infoScreen:
-                classifier.showInfoScreen();
+                HelperFunctions::showInfoScreen();
                 setDialogueState(checkForTrainedClassifier);
                 break;
 
@@ -69,17 +68,14 @@ void DialogueManager::manageDialogue(Classifier classifier)
 
             case classifyTestset:
                 classifier.testClassifierOnTestset();
+                setDialogueState(useClassifier);
                 break;
 
 
             case useClassifier:
-
+                string mail = HelperFunctions::getMailToClassify();
+                classifier.classify(mail);
                 break;
-
-            case continueClassifierUse:
-
-                break;
-
 
         }
     }
