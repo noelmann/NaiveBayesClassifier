@@ -24,7 +24,7 @@ void DialogueManager::setDialogueState(dialogueState state)
     dState = state;
 }
 
-void DialogueManager::manageDialogue(Classifier classifier)
+void DialogueManager::manageDialogue(Classifier& classifier)
 {
     for (;;)
     {
@@ -50,7 +50,7 @@ void DialogueManager::manageDialogue(Classifier classifier)
                 try
                 {
                     classifier.loadClassifierFromDisk();
-                    setDialogueState(classifyTestset);
+                    setDialogueState(determineClassificationTask);
                 }
                 catch (exception& e)
                 {
@@ -63,18 +63,36 @@ void DialogueManager::manageDialogue(Classifier classifier)
                 classifier.trainClassifier();
                 cout << "Training completed" << endl;
                 classifier.saveClassifierOnDisk();
-                setDialogueState(classifyTestset);
+                setDialogueState(determineClassificationTask);
                 break;
+
+            case determineClassificationTask:
+            {
+                const int c = classifier.determineClassificationTask();
+                if (c==1)
+                {
+                    setDialogueState(classifyTestset);
+                }
+                else if (c==2)
+                {
+                    setDialogueState(useClassifier);
+                }
+                else
+                {
+                    setDialogueState(classifyTestset);
+                }
+                break;
+            }
 
             case classifyTestset:
                 classifier.testClassifierOnTestset();
-                setDialogueState(useClassifier);
+                setDialogueState(determineClassificationTask);
                 break;
-
 
             case useClassifier:
                 string mail = HelperFunctions::getMailToClassify();
                 classifier.classify(mail);
+                setDialogueState(determineClassificationTask);
                 break;
 
         }

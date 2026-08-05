@@ -210,13 +210,20 @@ bool Classifier::classify(const string &text)
         }
 
     }
-    spamProbability+=log(priorSpam);
-    hamProbability+=log(priornotSpam);
+
+        spamProbability+=log(priorSpam);
+        hamProbability+=log(priornotSpam);
+
 
     //cout << "SpamProbability:" << pow(numbers::e,spamProbability) << endl;
     //cout << "HamProbability:" <<  pow(numbers::e,hamProbability) << endl;
-    cout << "SpamProbability:" << spamProbability << endl;
-    cout << "HamProbability:" <<  hamProbability << endl;
+
+    if (verbose)
+    {
+        cout << "SpamProbability:" << spamProbability << endl;
+        cout << "HamProbability:" <<  hamProbability << endl;
+    }
+
 
     if (spamProbability > hamProbability)
     {
@@ -259,6 +266,32 @@ bool Classifier::useExistingClassifier()
     }
 
     return true;
+}
+
+int Classifier::determineClassificationTask()
+{
+    string input;
+    bool validInput = false;
+    while (!validInput)
+    {
+        cout << "What type of classification task do you choose?" << endl;
+        cout << "[1] Classify dataset"<< endl;
+        cout << "[2] Classify custom text entered via CLI"<< endl;
+        input = HelperFunctions::convertStringToLower(HelperFunctions::getInput());
+        cout << endl;
+        if (input == "1" || input == "2")
+        {
+            validInput = true;
+        }
+        else
+        {
+            cout << "Please enter the number of your choice" << endl;
+            validInput = false;
+            continue;
+        }
+    }
+
+    return std::stoi(input);
 }
 
 
