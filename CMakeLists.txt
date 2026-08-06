@@ -9,4 +9,5 @@ add_executable(NaiveBayesClassifier main.cpp
         DialogueManager.cpp
         DialogueManager.h
         Classifier.cpp
-        Classifier.h)
+        Classifier.h
+        README.md)
