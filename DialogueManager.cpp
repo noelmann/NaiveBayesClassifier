@@ -36,7 +36,7 @@ void DialogueManager::manageDialogue(Classifier& classifier)
                 break;
 
             case checkForTrainedClassifier:
-                if (classifier.useExistingClassifier())
+                if (HelperFunctions::useExistingClassifier())
                 {
                     setDialogueState(loadClassifier);
                 }
@@ -61,14 +61,14 @@ void DialogueManager::manageDialogue(Classifier& classifier)
             case trainNewClassifier:
                 //Estimate probabilities with MLE and use add-k smoothing
                 classifier.trainClassifier();
-                cout << "Training completed" << endl;
+                cout << "Training completed" << endl << endl;
                 classifier.saveClassifierOnDisk();
                 setDialogueState(determineClassificationTask);
                 break;
 
             case determineClassificationTask:
             {
-                const int c = classifier.determineClassificationTask();
+                const int c = HelperFunctions::determineClassificationTask();
                 if (c==1)
                 {
                     setDialogueState(classifyTestset);

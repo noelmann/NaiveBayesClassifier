@@ -22,7 +22,9 @@ class HelperFunctions
     static std::string getClassifierSaveLocation();
     static std::string getLocationOfSavedClassifier();
     static std::string getMailToClassify();
+    static bool useExistingClassifier();
     static int getSmoothingParameter();
+    static int determineClassificationTask();
     static void showInfoScreen();
 };
 

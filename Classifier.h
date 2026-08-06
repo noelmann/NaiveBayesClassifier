@@ -13,8 +13,6 @@ class Classifier
 {
     public:
     Classifier(bool enterVerboseMode);
-    bool useExistingClassifier();
-    int determineClassificationTask();
     bool loadClassifierFromDisk();
     bool trainClassifier();
     bool saveClassifierOnDisk();

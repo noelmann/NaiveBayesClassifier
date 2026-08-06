@@ -65,37 +65,41 @@ std::vector<std::string> HelperFunctions::tokenize(const std::string &s, char d)
 
 std::string HelperFunctions::getSpamMailPath()
 {
-    std::cout << "Please enter the full path to the spam mail txt files:" << std::endl;
+    std::cout << R"(Please enter the full path to the spam mail txt files[e.g. D:\NaiveBayesClassifier\SpamTrainingSet]:)" << std::endl;
     std::string spamPath = HelperFunctions::getInput();
+    std::cout << std::endl;
     return spamPath;
 }
 
 std::string HelperFunctions::getNonSpamMailPath()
 {
-    std::cout << "Please enter the full path to the non-spam(ham) mail txt files:" << std::endl;
+    std::cout << R"(Please enter the full path to the non-spam(ham) mail txt files[e.g. D:\NaiveBayesClassifier\NonSpamTrainingSet]:)" << std::endl;
     std::string nonspamPath = HelperFunctions::getInput();
+    std::cout << std::endl;
     return nonspamPath;
 }
 
 std::string HelperFunctions::getTestSetPath()
 {
     std::string path;
-    std::cout << "Please enter the path of the testset:" << std::endl;
+    std::cout << R"(Please enter the path of the testset[e.g. D:\NaiveBayesClassifier\SpamTestset]:)" << std::endl;
     getline(std::cin,path);
     return path;
 }
 
 std::string HelperFunctions::getClassifierSaveLocation()
 {
-    std::cout << "Please enter the path where the trained classifier should be saved:" << std::endl;
+    std::cout << R"(Please enter the path where the trained classifier should be saved[e.g. D:\NaiveBayesClassifier\trainedClassifier.txt]:)" << std::endl;
     std::string saveLocation = HelperFunctions::getInput();
+    std::cout << std::endl;
     return saveLocation;
 }
 
 std::string HelperFunctions::getLocationOfSavedClassifier()
 {
-    std::cout << "Please enter the path of the saved classifier:" << std::endl;
+    std::cout << R"(Please enter the path of the saved classifier[e.g. D:\NaiveBayesClassifier\finalClassifier.txt]:)" << std::endl;
     std::string saveLocation = HelperFunctions::getInput();
+    std::cout << std::endl;
 
     return saveLocation;
 }
@@ -104,6 +108,7 @@ std::string HelperFunctions::getMailToClassify()
 {
     std::cout << "Please enter the content of the mail to be classified:" << std::endl;
     std::string mail = HelperFunctions::getInput();
+    std::cout << std::endl;
 
     return mail;
 }
@@ -118,5 +123,61 @@ int HelperFunctions::getSmoothingParameter()
 
 void HelperFunctions::showInfoScreen()
 {
-    std::cout << "Welcome to a simple naive bayes spam/ham classifier demo with add-k smoothing." << std::endl;
+    std::cout << "Welcome to a simple naive bayes spam/ham classifier demo with add-k smoothing." << std::endl << std::endl;
+}
+
+int HelperFunctions::determineClassificationTask()
+{
+    std::string input;
+    bool validInput = false;
+    while (!validInput)
+    {
+        std::cout << "What type of classification task do you choose?" << std::endl;
+        std::cout << "[1] Classify dataset"<< std::endl;
+        std::cout << "[2] Classify custom text entered via CLI"<< std::endl;
+        input = HelperFunctions::convertStringToLower(HelperFunctions::getInput());
+        std::cout << std::endl;
+        if (input == "1" || input == "2")
+        {
+            validInput = true;
+        }
+        else
+        {
+            std::cout << "Please enter the number of your choice" << std::endl;
+            validInput = false;
+            continue;
+        }
+    }
+
+    return std::stoi(input);
+}
+
+bool HelperFunctions::useExistingClassifier()
+{
+    bool validInput = false;
+    while (!validInput)
+    {
+        std::cout << "Do you want to use a classifier stored on disk?" << std::endl;
+        std::cout << "Yes(y) or No(n): ";
+        std::string input = HelperFunctions::convertStringToLower(HelperFunctions::getInput());
+        std::cout << std::endl;
+        if (input == "y" || input == "yes")
+        {
+            validInput = true;
+            return true;
+        }
+        else if (input == "n" || input == "no")
+        {
+            validInput = true;
+            return false;
+        }
+        else
+        {
+            std::cout << "Please enter only yes(y) or no(n)" << std::endl << std::endl;
+            validInput = false;
+            continue;
+        }
+    }
+
+    return true;
 }

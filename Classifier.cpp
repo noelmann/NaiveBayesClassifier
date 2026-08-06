@@ -227,76 +227,16 @@ bool Classifier::classify(const string &text)
 
     if (spamProbability > hamProbability)
     {
-        cout << "Spam!" << endl;
+        cout << "Result:Spam!" << endl << endl;
         return true;
     }
     else
     {
-        cout << "Ham!" << endl;
+        cout << "Result:Ham!" << endl << endl;
         return false;
     }
     return false;
 }
-
-bool Classifier::useExistingClassifier()
-{
-    bool validInput = false;
-    while (!validInput)
-    {
-        cout << "Do you want to use a classifier stored on disk?" << endl;
-        cout << "Yes(y) or No(n): ";
-        string input = HelperFunctions::convertStringToLower(HelperFunctions::getInput());
-        cout << endl;
-        if (input == "y" || input == "yes")
-        {
-            validInput = true;
-            return true;
-        }
-        else if (input == "n" || input == "no")
-        {
-            validInput = true;
-            return false;
-        }
-        else
-        {
-            cout << "Please enter only yes(y) or no(n)" << endl;
-            validInput = false;
-            continue;
-        }
-    }
-
-    return true;
-}
-
-int Classifier::determineClassificationTask()
-{
-    string input;
-    bool validInput = false;
-    while (!validInput)
-    {
-        cout << "What type of classification task do you choose?" << endl;
-        cout << "[1] Classify dataset"<< endl;
-        cout << "[2] Classify custom text entered via CLI"<< endl;
-        input = HelperFunctions::convertStringToLower(HelperFunctions::getInput());
-        cout << endl;
-        if (input == "1" || input == "2")
-        {
-            validInput = true;
-        }
-        else
-        {
-            cout << "Please enter the number of your choice" << endl;
-            validInput = false;
-            continue;
-        }
-    }
-
-    return std::stoi(input);
-}
-
-
-
-
 
 void Classifier::testClassifierOnTestset()
 {
@@ -370,7 +310,7 @@ void Classifier::testClassifierOnTestset()
     cout << "SpamPercentage:" << spamCounter/totalCounter << endl;
     cout << "HamPercentage:" << hamCounter/totalCounter << endl;
     cout << "UnkCount:" << unkCounter << endl;
-    cout << "UnkPercentage:" << unkCounter/(unkCounter+nonUnkCounter) << endl;
+    cout << "UnkPercentage:" << unkCounter/(unkCounter+nonUnkCounter) << endl << endl;
 
 }
 
