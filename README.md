@@ -1,7 +1,6 @@
 
 # Simple Naive Bayes spam/ham classifier with add-K smoothing
-
-
+![](./NaiveBayesClassifier_Preview.gif)
 
 # What is it?
 A command line application written in C++ that is intended to show the effectiveness of Naive Bayes for text classification purposes.
