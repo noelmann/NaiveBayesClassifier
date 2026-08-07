@@ -35,6 +35,7 @@ void Classifier::disableVerboseMode()
     verbose = false;
 }
 
+//reads the spam files in the given directory
 bool Classifier::loadSpamMailFile(const string& path)
 {
     for (const auto & entry : filesystem::directory_iterator(path))
@@ -62,6 +63,7 @@ bool Classifier::loadSpamMailFile(const string& path)
     return true;
 }
 
+//reads the ham files in the given directory
 bool Classifier::loadNonSpamMailFile(const string& path)
 {
     for (const auto & entry : filesystem::directory_iterator(path))
@@ -89,7 +91,7 @@ bool Classifier::loadNonSpamMailFile(const string& path)
     return true;
 }
 
-
+//calculates the probabilities based on the training set and applies add-K smoothing
 bool Classifier::trainClassifier()
 {
     //P(A|B)=>P(B|A)*P(A)
@@ -177,6 +179,7 @@ bool Classifier::trainClassifier()
     return true;
 }
 
+//classifies the given text into one of the two classes
 bool Classifier::classify(const string &text)
 {
     vector<string> input = HelperFunctions::tokenize(text,' ');
@@ -238,6 +241,7 @@ bool Classifier::classify(const string &text)
     return false;
 }
 
+//runs the classifier on an entire dataset and print a summary of the results
 void Classifier::testClassifierOnTestset()
 {
     /*string text;
@@ -314,6 +318,7 @@ void Classifier::testClassifierOnTestset()
 
 }
 
+//saves the trained classifier for future usage
 bool Classifier::saveClassifierOnDisk()
 {
     string saveLocation = HelperFunctions::getClassifierSaveLocation();
@@ -343,6 +348,7 @@ bool Classifier::saveClassifierOnDisk()
     return true;
 }
 
+//loads a trained classifier from disk
 bool Classifier::loadClassifierFromDisk()
 {
     string saveLocation = HelperFunctions::getLocationOfSavedClassifier();

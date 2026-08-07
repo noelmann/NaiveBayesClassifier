@@ -25,6 +25,7 @@ std::string HelperFunctions::convertStringToLower(const std::string& s)
     return temp;
 }
 
+//splits a string at a delimiter string
 std::vector<std::string> HelperFunctions::splitString(const std::string& input, const std::string& d) {
     std::vector<std::string> result;
 
@@ -41,7 +42,7 @@ std::vector<std::string> HelperFunctions::splitString(const std::string& input, 
     return result;
 }
 
-
+//splits a string at given character
 std::vector<std::string> HelperFunctions::tokenize(const std::string &s, char d)
 {
     std::vector<std::string> substrings;

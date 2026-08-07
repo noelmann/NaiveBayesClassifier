@@ -24,6 +24,7 @@ void DialogueManager::setDialogueState(dialogueState state)
     dState = state;
 }
 
+//handles the flow of the dialogue between the user and the system
 void DialogueManager::manageDialogue(Classifier& classifier)
 {
     for (;;)
